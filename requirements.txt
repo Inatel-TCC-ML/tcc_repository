@@ -1,0 +1,17 @@
+# requirements.txt (raiz do seu projeto)
+
+# ===== Dependências do CNNDetection (submodule) =====
+-r external/CNNDetection/requirements.txt
+
+# ===== Dependências do seu pipeline (extração, agregação, interface) =====
+opencv-python==4.10.0.84
+scikit-image==0.24.0
+numpy==1.26.4
+Pillow==10.4.0
+
+# ===== Utilitários gerais =====
+python-dotenv==1.0.1
+tqdm==4.66.5
+
+# ===== Testes =====
+pytest==8.3.3

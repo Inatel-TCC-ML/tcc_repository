@@ -1,3 +1,6 @@
 [submodule "external/CNNDetection"]
 	path = external/CNNDetection
 	url = git@github.com:PeterWang512/CNNDetection.git
+[submodule "external/UniversalFakeDetect"]
+	path = external/UniversalFakeDetect
+	url = https://github.com/WisconsinAIVision/UniversalFakeDetect.git

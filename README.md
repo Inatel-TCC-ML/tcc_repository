@@ -94,6 +94,31 @@ Ponto de entrada para rodar o pipeline sem precisar mexer no código-fonte. Rece
 python -m src.interface.cli "datasets/ai/video1.mp4"
 ```
 
+### Analisar uma imagem diretamente
+
+1. Coloque **uma única** imagem em `datasets/input/`.
+2. Com o ambiente virtual ativo, execute:
+
+```bash
+python run_detector.py
+```
+
+O script carrega o CNNDetection e mostra o score de probabilidade de a imagem
+ser sintética. Arquivos em `datasets/` continuam fora do Git.
+
+### Analisar um vídeo pelos keyframes
+
+1. Coloque **um único** vídeo em `datasets/videos/input/`.
+2. Com o ambiente virtual ativo, execute:
+
+```bash
+python run_video_detector.py
+```
+
+O pipeline extrai keyframes por MSSIM, grava-os em
+`output/keyframes/<nome-do-video>/`, aplica o CNNDetection em cada imagem e
+retorna a média dos scores como score final do vídeo.
+
 ### `datasets/`
 Vídeos de entrada (reais e gerados por IA), organizados por gerador de origem — importante para rastrear qual amostra veio de qual modelo generativo no teste de generalização.
 
