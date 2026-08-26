@@ -4,3 +4,6 @@
 [submodule "external/UniversalFakeDetect"]
 	path = external/UniversalFakeDetect
 	url = https://github.com/WisconsinAIVision/UniversalFakeDetect.git
+[submodule "external/NPR-DeepfakeDetection"]
+	path = external/NPR-DeepfakeDetection
+	url = https://github.com/chuangchuangtan/NPR-DeepfakeDetection.git

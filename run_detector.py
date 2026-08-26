@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from src.config import INPUT_IMAGE_DIR
-from src.detection import CNNDetectionDetector
+from src.detection import UnivFDDetector
 
 
 SUPPORTED_EXTENSIONS = {".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff", ".webp"}
@@ -35,7 +35,7 @@ def find_input_image(input_dir: Path) -> Path:
 
 def main() -> None:
     image_path = find_input_image(Path(INPUT_IMAGE_DIR))
-    detector = CNNDetectionDetector()
+    detector = UnivFDDetector()
     score = detector.predict(str(image_path))
 
     print(f"Imagem analisada: {image_path.name}")

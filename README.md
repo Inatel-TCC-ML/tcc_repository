@@ -103,8 +103,8 @@ python -m src.interface.cli "datasets/ai/video1.mp4"
 python run_detector.py
 ```
 
-O script carrega o CNNDetection e mostra o score de probabilidade de a imagem
-ser sintética. Arquivos em `datasets/` continuam fora do Git.
+O script carrega o UnivFD e mostra o score de probabilidade de a imagem ser
+sintética. Arquivos em `datasets/` continuam fora do Git.
 
 ### Analisar um vídeo pelos keyframes
 
@@ -118,6 +118,15 @@ python run_video_detector.py
 O pipeline extrai keyframes por MSSIM, grava-os em
 `output/keyframes/<nome-do-video>/`, aplica o CNNDetection em cada imagem e
 retorna a média dos scores como score final do vídeo.
+
+Além do resultado principal, o executor mostra média, mediana, percentis 75 e
+90, e máximo dos scores dos keyframes. Compare esses valores em um conjunto de
+vídeos reais e sintéticos antes de escolher a agregação definitiva.
+
+O executor usa o UnivFD (CLIP ViT-L/14) como detector padrão. Na primeira
+execução, o CLIP pode baixar automaticamente o backbone pré-treinado; mantenha
+conexão com a internet. O CNNDetection continua disponível como baseline para
+os experimentos comparativos.
 
 ### `datasets/`
 Vídeos de entrada (reais e gerados por IA), organizados por gerador de origem — importante para rastrear qual amostra veio de qual modelo generativo no teste de generalização.
