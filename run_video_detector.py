@@ -35,7 +35,7 @@ def find_input_video(input_dir: Path) -> Path:
 def main() -> None:
     video_path = find_input_video(Path(INPUT_VIDEO_DIR))
     pipeline = VideoDetectionPipeline(
-        extractor=MSSIMKeyframeExtractor(threshold=0.90),
+        extractor=MSSIMKeyframeExtractor(threshold=0.50),
         detectors=[CNNDetectionDetector()],
         aggregator=MeanAggregator(),
     )

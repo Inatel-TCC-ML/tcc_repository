@@ -2,6 +2,7 @@
 
 # ===== Dependências do CNNDetection (submodule) =====
 -r external/CNNDetection/requirements.txt
+-r external/NPR-DeepFakeDetection/requirements.txt
 
 # ===== Dependências do seu pipeline (extração, agregação, interface) =====
 opencv-python==4.10.0.84
