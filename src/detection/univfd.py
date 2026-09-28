@@ -2,6 +2,14 @@
 
 from __future__ import annotations
 
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message="pkg_resources is deprecated as an API.*",
+    category=UserWarning,
+)
+
 import sys
 from pathlib import Path
 from typing import Optional, Union

@@ -7,6 +7,7 @@ from src.aggregation.frame_aggregators import FrameAggregator, MeanFrameAggregat
 from src.detection.base import Detector
 from src.extraction.base import KeyframeExtractor
 
+from tqdm import tqdm
 
 class VideoDetectionPipeline:
     def __init__(
@@ -30,7 +31,11 @@ class VideoDetectionPipeline:
             detector.name: [] for detector in self.detectors
         }
 
-        for keyframe in keyframes:
+        for keyframe in tqdm(
+            keyframes,
+            desc="Analisando keyframes",
+            unit="frame",
+        ):
             frame_scores = {
                 detector.name: detector.predict(keyframe) for detector in self.detectors
             }

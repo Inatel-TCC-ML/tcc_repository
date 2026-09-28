@@ -53,7 +53,7 @@ class MSSIMKeyframeExtractor(KeyframeExtractor):
                     < self.threshold
                 )
                 if is_keyframe:
-                    frame_file = target_dir / f"frame_{frame_index:06d}.jpg"
+                    frame_file = target_dir / f"frame_{frame_index:06d}.png"
                     if not cv2.imwrite(str(frame_file), frame):
                         raise OSError(f"Não foi possível salvar o keyframe: {frame_file}")
                     keyframes.append(str(frame_file))
