@@ -14,7 +14,6 @@ from src.detection import UnivFDDetector, CNNDetectionDetector
 from src.extraction import MSSIMKeyframeExtractor
 from src.pipeline import VideoDetectionPipeline
 
-
 SUPPORTED_EXTENSIONS = {".avi", ".mkv", ".mov", ".mp4", ".webm"}
 FRAME_AGGREGATORS_TO_COMPARE = [
     MeanFrameAggregator(),
@@ -68,7 +67,11 @@ def main() -> None:
             score = frame_aggregator.aggregate(frame_scores)
             print(f"  {frame_aggregator.name}: {score:.6f} ({score:.2%})")
     print(f"Score final: {final_score:.6f} ({final_score:.2%})")
-    print("Classificação: possivelmente sintético" if final_score >= 0.5 else "Classificação: possivelmente real")
+    print(
+        "Classificação: possivelmente sintético"
+        if final_score >= 0.5
+        else "Classificação: possivelmente real"
+    )
 
 
 if __name__ == "__main__":

@@ -5,7 +5,6 @@ from pathlib import Path
 from src.config import INPUT_IMAGE_DIR
 from src.detection import UnivFDDetector, CNNDetectionDetector
 
-
 SUPPORTED_EXTENSIONS = {".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff", ".webp"}
 
 
@@ -41,7 +40,11 @@ def main() -> None:
 
     print(f"Imagem analisada: {image_path.name}")
     print(f"Score de imagem sintética: {score:.6f} ({score:.2%})")
-    print("Classificação: possivelmente sintética" if score >= 0.5 else "Classificação: possivelmente real")
+    print(
+        "Classificação: possivelmente sintética"
+        if score >= 0.5
+        else "Classificação: possivelmente real"
+    )
 
 
 if __name__ == "__main__":

@@ -1,5 +1,3 @@
-# requirements.txt (raiz do seu projeto)
-
 # ===== Dependências do CNNDetection (submodule) =====
 -r external/CNNDetection/requirements.txt
 

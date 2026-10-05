@@ -61,33 +61,41 @@ tcc_repository/
 ## O que cada pasta faz
 
 ### `external/`
+
 Código de terceiros incluído via **git submodule**. Mantém separação clara entre código original (citado/referenciado) e código próprio — importante para a integridade acadêmica do TCC. Nunca editar diretamente; se precisar de mudanças, criar wrapper em `src/detection/`.
 
 ### `weights/`
+
 Pesos pré-treinados dos modelos de detecção. Não versionado no Git (arquivos grandes); cada membro do grupo baixa manualmente seguindo instruções do `setup.sh`/README.
 
 ### `src/config.py`
+
 Único lugar do projeto com caminhos absolutos, calculados a partir da raiz do repositório (via `os.path.dirname(os.path.abspath(__file__))`). Evita caminhos hardcoded específicos de cada máquina/usuário.
 
 ### `src/extraction/`
+
 Métodos de extração de keyframes de vídeo. Todo método novo implementa a interface `KeyframeExtractor` (`base.py`), com um método `extract(video_path) -> list[str]`.
 
 **Atual:** extração via similaridade estrutural (MSSIM), comparando cada frame ao último keyframe salvo.
 
 ### `src/detection/`
+
 Modelos de detecção de imagens/vídeos gerados por IA — o coração do ensemble. Todo modelo novo implementa a interface `Detector` (`base.py`), com um método `predict(image_path) -> float` retornando o score de probabilidade.
 
 **Atual:** CNNDetection (Wang et al., CVPR 2020), ResNet50 treinado em imagens geradas por GAN. Escolhido propositalmente por suas limitações documentadas de generalização contra modelos de difusão — serve de baseline para o eixo de generalização da pesquisa.
 
 ### `src/aggregation/`
+
 Métodos de agregação dos scores retornados pelos múltiplos detectores. Todo método novo implementa a interface `Aggregator` (`base.py`), com um método `aggregate(scores: dict) -> float`.
 
 Este é o módulo central do segundo eixo de pesquisa: testar se a agregação de scores consegue compensar a baixa generalização individual dos detectores.
 
 ### `src/pipeline.py`
+
 Orquestrador central. Recebe um extrator, uma lista de detectores e um agregador, e executa o fluxo completo: extração → detecção (em cada keyframe, por cada modelo) → agregação → resultado final. É o único ponto do código que "conhece" o fluxo inteiro — módulos individuais não precisam saber uns dos outros.
 
 ### `src/interface/`
+
 Ponto de entrada para rodar o pipeline sem precisar mexer no código-fonte. Recebe um caminho de vídeo e devolve o resultado (scores por frame, score agregado final).
 
 ```bash
@@ -129,15 +137,19 @@ conexão com a internet. O CNNDetection continua disponível como baseline para
 os experimentos comparativos.
 
 ### `datasets/`
+
 Vídeos de entrada (reais e gerados por IA), organizados por gerador de origem — importante para rastrear qual amostra veio de qual modelo generativo no teste de generalização.
 
 ### `output/`
+
 Keyframes extraídos e resultados de execução do pipeline. Organizado por vídeo processado (ex: `output/{nome_do_video}/frame_000000.jpg`).
 
 ### `notebooks/`
+
 Experimentos exploratórios, testes de threshold, análises de resultados — código descartável/investigativo, separado do código de produção em `src/`.
 
 ### `tests/`
+
 Testes unitários, um por módulo (`test_extraction.py`, `test_detection.py`, `test_aggregation.py`, etc.), garantindo que cada interface implementada respeita o contrato esperado.
 
 ## Por que essa estrutura escala bem
