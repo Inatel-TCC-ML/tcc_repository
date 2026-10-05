@@ -66,8 +66,6 @@ class UnivFDDetector(Detector):
         if str(source_dir) not in sys.path:
             sys.path.insert(0, str(source_dir))
 
-        # O projeto oficial expõe a fábrica de modelos no pacote ``models``.
-        # CNNDetection não usa esse pacote, portanto não há conflito no pipeline.
         from models import get_model
 
         self.device = torch.device(
@@ -78,7 +76,7 @@ class UnivFDDetector(Detector):
             classifier_weights = torch.load(
                 self.weights_path, map_location="cpu", weights_only=True
             )
-        except TypeError:  # Compatibilidade com versões antigas do PyTorch.
+        except TypeError:
             classifier_weights = torch.load(self.weights_path, map_location="cpu")
         model.fc.load_state_dict(classifier_weights)
         model.to(self.device)

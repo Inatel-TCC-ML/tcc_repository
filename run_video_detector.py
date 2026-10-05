@@ -10,7 +10,7 @@ from src.aggregation import (
     PercentileFrameAggregator,
 )
 from src.config import INPUT_VIDEO_DIR
-from src.detection import UnivFDDetector
+from src.detection import UnivFDDetector, CNNDetectionDetector
 from src.extraction import MSSIMKeyframeExtractor
 from src.pipeline import VideoDetectionPipeline
 
@@ -49,7 +49,8 @@ def main() -> None:
     video_path = find_input_video(Path(INPUT_VIDEO_DIR))
     pipeline = VideoDetectionPipeline(
         extractor=MSSIMKeyframeExtractor(threshold=0.90),
-        detectors=[UnivFDDetector()],
+        # detectors=[UnivFDDetector()],
+        detectors=[CNNDetectionDetector()],
         aggregator=MeanAggregator(),
         frame_aggregator=MeanFrameAggregator(),
     )
