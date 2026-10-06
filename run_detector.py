@@ -1,12 +1,20 @@
-"""Analisa a única imagem colocada em ``datasets/input`` com CNNDetection."""
+"""Analisa imagems adicionadas em ``datasets/input`` com vários modelos"""
 
 from pathlib import Path
+
+import csv
+
+from src.aggregation import (
+    MaxScoreAggregator,
+    MeanScoreAggregator,
+    MedianScoreAggregator,
+    PercentileScoreAggregator,
+)
 
 from src.config import INPUT_IMAGE_DIR
 from src.detection import UnivFDDetector, CNNDetectionDetector
 
 SUPPORTED_EXTENSIONS = {".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff", ".webp"}
-
 
 def find_input_image(input_dir: Path) -> Path:
     """Localiza a única imagem de entrada e explica erros comuns ao usuário."""
@@ -23,28 +31,42 @@ def find_input_image(input_dir: Path) -> Path:
             f"Nenhuma imagem encontrada em: {input_dir}\n"
             f"Coloque uma imagem ({extensions}) nessa pasta e execute novamente."
         )
-    if len(images) > 1:
-        names = "\n".join(f"- {image.name}" for image in images)
-        raise RuntimeError(
-            "Há mais de uma imagem em datasets/input. Deixe apenas uma para análise:\n"
-            f"{names}"
-        )
-    return images[0]
+    return images
 
 
 def main() -> None:
-    image_path = find_input_image(Path(INPUT_IMAGE_DIR))
-    # detector = CNNDetectionDetector()
-    detector = UnivFDDetector()
-    score = detector.predict(str(image_path))
+    images = find_input_image(Path(INPUT_IMAGE_DIR))
+    detectors = [
+        UnivFDDetector(), 
+        CNNDetectionDetector()
+    ]
 
-    print(f"Imagem analisada: {image_path.name}")
-    print(f"Score de imagem sintética: {score:.6f} ({score:.2%})")
-    print(
-        "Classificação: possivelmente sintética"
-        if score >= 0.5
-        else "Classificação: possivelmente real"
-    )
+    with open("results.csv", "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        models_name = [detector.name for detector in detectors]
+
+        writer.writerow([
+            "Imagem",
+            *models_name,
+            "Média",
+            "Mediana",
+            "Percentil 75",
+            "Percentil 90",
+            "Máximo",
+        ])
+
+        for image in images:
+            scores = [detector.predict(str(image)) for detector in detectors]
+
+            writer.writerow([
+                image.name,
+                *scores,
+                MeanScoreAggregator().aggregate(scores),
+                MedianScoreAggregator().aggregate(scores),
+                PercentileScoreAggregator(75).aggregate(scores),
+                PercentileScoreAggregator(90).aggregate(scores),
+                MaxScoreAggregator().aggregate(scores),
+            ])
 
 
 if __name__ == "__main__":

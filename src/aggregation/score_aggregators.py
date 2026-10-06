@@ -1,4 +1,4 @@
-"""Estratégias para resumir os scores dos keyframes de um vídeo."""
+"""Estratégias para resumir uma sequência de scores em um score final."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ from typing import Sequence
 import numpy as np
 
 
-class FrameAggregator(ABC):
-    """Converte uma sequência de scores de keyframes em um score de vídeo."""
+class ScoreAggregator(ABC):
+    """Converte uma sequência de scores em um único score final."""
 
     @property
     @abstractmethod
@@ -27,7 +27,7 @@ class FrameAggregator(ABC):
             raise ValueError("É necessário ao menos um score de keyframe.")
 
 
-class MeanFrameAggregator(FrameAggregator):
+class MeanScoreAggregator(ScoreAggregator):
     @property
     def name(self) -> str:
         return "média"
@@ -37,7 +37,7 @@ class MeanFrameAggregator(FrameAggregator):
         return fmean(scores)
 
 
-class MaxFrameAggregator(FrameAggregator):
+class MaxScoreAggregator(ScoreAggregator):
     @property
     def name(self) -> str:
         return "máximo"
@@ -47,7 +47,7 @@ class MaxFrameAggregator(FrameAggregator):
         return max(scores)
 
 
-class MedianFrameAggregator(FrameAggregator):
+class MedianScoreAggregator(ScoreAggregator):
     @property
     def name(self) -> str:
         return "mediana"
@@ -57,7 +57,7 @@ class MedianFrameAggregator(FrameAggregator):
         return float(median(scores))
 
 
-class PercentileFrameAggregator(FrameAggregator):
+class PercentileScoreAggregator(ScoreAggregator):
     def __init__(self, percentile: float) -> None:
         if not 0 <= percentile <= 100:
             raise ValueError("O percentil deve estar entre 0 e 100.")

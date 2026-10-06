@@ -11,12 +11,6 @@ WEIGHTS_PATH = os.path.normpath(WEIGHTS_PATH)
 INPUT_IMAGE_DIR = os.path.join(ROOT_DIR, "..", "datasets", "input")
 INPUT_IMAGE_DIR = os.path.normpath(INPUT_IMAGE_DIR)
 
-INPUT_VIDEO_DIR = os.path.join(ROOT_DIR, "..", "datasets", "videos", "input")
-INPUT_VIDEO_DIR = os.path.normpath(INPUT_VIDEO_DIR)
-
-OUTPUT_DIR = os.path.join(ROOT_DIR, "..", "output")
-OUTPUT_DIR = os.path.normpath(OUTPUT_DIR)
-
 UNIVFD_DIR = os.path.join(ROOT_DIR, "..", "external", "UniversalFakeDetect")
 UNIVFD_DIR = os.path.normpath(UNIVFD_DIR)
 

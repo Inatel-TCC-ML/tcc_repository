@@ -1,4 +1,4 @@
-"""Adaptador para usar o modelo pré-treinado do submódulo CNNDetection."""
+"""Adaptador para usar o modelo pré-treinado do submódulo CNNDetection"""
 
 from __future__ import annotations
 

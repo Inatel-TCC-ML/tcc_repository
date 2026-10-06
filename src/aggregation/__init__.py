@@ -1,19 +1,17 @@
 from .base import Aggregator
-from .frame_aggregators import (
-    FrameAggregator,
-    MaxFrameAggregator,
-    MeanFrameAggregator,
-    MedianFrameAggregator,
-    PercentileFrameAggregator,
+from .score_aggregators import (
+    ScoreAggregator,
+    MaxScoreAggregator,
+    MeanScoreAggregator,
+    MedianScoreAggregator,
+    PercentileScoreAggregator,
 )
-from .mean_aggregator import MeanAggregator
 
 __all__ = [
     "Aggregator",
-    "FrameAggregator",
-    "MaxFrameAggregator",
-    "MeanAggregator",
-    "MeanFrameAggregator",
-    "MedianFrameAggregator",
-    "PercentileFrameAggregator",
+    "ScoreAggregator",
+    "MaxScoreAggregator",
+    "MeanScoreAggregator",
+    "MedianScoreAggregator",
+    "PercentileScoreAggregator",
 ]

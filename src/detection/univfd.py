@@ -1,4 +1,4 @@
-"""Wrapper do UniversalFakeDetect (UnivFD) para imagens individuais."""
+"""Adaptador para usar o modelo pré-treinado do submódulo UniversalFakeDetect"""
 
 from __future__ import annotations
 
