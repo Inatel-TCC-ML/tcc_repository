@@ -1,7 +1,7 @@
 """Analisa imagems adicionadas em ``datasets/input`` com vários modelos"""
 
 from pathlib import Path
-
+from tqdm import tqdm
 import csv
 
 from src.aggregation import (
@@ -35,12 +35,14 @@ def find_input_image(input_dir: Path) -> Path:
 
 
 def main() -> None:
+    print("Iniciando analise de imagens")
     images = find_input_image(Path(INPUT_IMAGE_DIR))
     detectors = [
         UnivFDDetector(), 
         CNNDetectionDetector()
     ]
 
+    print("\n" * 50)
     with open("results.csv", "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         models_name = [detector.name for detector in detectors]
@@ -55,7 +57,11 @@ def main() -> None:
             "Máximo",
         ])
 
-        for image in images:
+        for image in tqdm(
+            images,
+            desc="Analisando imagens",
+            unit="image",
+        ):
             scores = [detector.predict(str(image)) for detector in detectors]
 
             writer.writerow([
@@ -67,6 +73,9 @@ def main() -> None:
                 PercentileScoreAggregator(90).aggregate(scores),
                 MaxScoreAggregator().aggregate(scores),
             ])
+    
+    print("\n" * 50)
+    print("Imagens analisadas e enviadas para results.csv!")
 
 
 if __name__ == "__main__":
