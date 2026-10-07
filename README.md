@@ -42,7 +42,7 @@ tcc_repository/
 │
 ├── requirements.txt
 ├── .gitignore
-├── run_detector.py                    # Destinado a inicar a detecção (deve ser inicializado no terminal)
+├── run.py                             # Destinado a inicar a detecção (deve ser inicializado no terminal)
 └── README.md
 ```
 
@@ -78,7 +78,7 @@ Este é o módulo central do segundo eixo de pesquisa: testar se a agregação d
 2. Com o ambiente virtual ativo, execute:
 
 ```bash
-python run_detector.py
+python run.py
 ```
 
 O script carrega todos os modelos e mostra o score de probabilidade de a imagem ser
