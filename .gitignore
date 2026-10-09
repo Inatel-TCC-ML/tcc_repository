@@ -6,12 +6,12 @@ weights/*/
 weights/*.zip
 weights/*.tmp
 datasets/
-output/
 *.mp4
 *.avi
 *.mov
 *.mkv
 *.csv
+!output/**/*.csv
 
 # ===== Python =====
 __pycache__/
