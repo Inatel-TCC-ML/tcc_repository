@@ -51,6 +51,9 @@ notebooks/**/*.ipynb_checkpoints/
 .vscode/
 *.code-workspace
 
+# ===== Claude Code (permissões pessoais) =====
+.claude/settings.local.json
+
 # ===== PyCharm / JetBrains =====
 .idea/
 
