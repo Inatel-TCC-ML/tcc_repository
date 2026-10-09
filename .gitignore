@@ -2,6 +2,9 @@
 weights/*.pth
 weights/*.pt
 weights/*.ckpt
+weights/*/
+weights/*.zip
+weights/*.tmp
 datasets/
 output/
 *.mp4

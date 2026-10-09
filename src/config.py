@@ -25,3 +25,10 @@ NPRDEEPFAKE_DIR = os.path.normpath(NPRDEEPFAKE_DIR)
 
 NPRDEEPFAKE_WEIGHTS_PATH = os.path.join(NPRDEEPFAKE_DIR, "NPR.pth")
 NPRDEEPFAKE_WEIGHTS_PATH = os.path.normpath(NPRDEEPFAKE_WEIGHTS_PATH)
+
+# ---------- B-Free ---------- #
+BFREE_DIR = os.path.join(ROOT_DIR, "..", "external", "B-Free", "code")
+BFREE_DIR = os.path.normpath(BFREE_DIR)
+
+BFREE_WEIGHTS_DIR = os.path.join(ROOT_DIR, "..", "weights", "BFREE_dino2reg4")
+BFREE_WEIGHTS_DIR = os.path.normpath(BFREE_WEIGHTS_DIR)
