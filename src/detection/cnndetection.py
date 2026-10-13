@@ -72,7 +72,7 @@ class CNNDetectionDetector(Detector):
                 "Instale as dependências do requirements.txt."
             ) from error
 
-        # localiza o código do NPR dentro do submódulo
+        # localiza o código do CNNDetection dentro do submódulo
         source_dir = Path(CNNDETECTION_DIR).resolve()
 
         if not source_dir.is_dir():

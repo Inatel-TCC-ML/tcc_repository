@@ -2,14 +2,17 @@
 weights/*.pth
 weights/*.pt
 weights/*.ckpt
+weights/*/
+weights/*.zip
+weights/*.tmp
 datasets/
-dataset-separado/
-output/
 *.mp4
 *.avi
 *.mov
 *.mkv
 *.csv
+!output/**/*.csv
+!experimento/amostra.csv
 
 # ===== Python =====
 __pycache__/
@@ -48,6 +51,9 @@ notebooks/**/*.ipynb_checkpoints/
 # ===== VS Code =====
 .vscode/
 *.code-workspace
+
+# ===== Claude Code (permissões pessoais) =====
+.claude/settings.local.json
 
 # ===== PyCharm / JetBrains =====
 .idea/

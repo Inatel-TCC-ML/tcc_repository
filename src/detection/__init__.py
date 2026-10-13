@@ -3,6 +3,7 @@ from .cnndetection import CNNDetectionDetector
 from .universalFakeDetect import UnivFDDetector
 from .nprDeepfakeDetect import NPRDetector
 from .spaiDetector import SPAIDetector
+from .bFree import BFreeDetector
 
 __all__ = [
     "Detector",
@@ -10,4 +11,5 @@ __all__ = [
     "UnivFDDetector",
     "NPRDetector",
     "SPAIDetector",
+    "BFreeDetector"
 ]

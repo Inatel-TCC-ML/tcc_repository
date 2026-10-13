@@ -75,7 +75,7 @@ class UnivFDDetector(Detector):
                 "UnivFD requer PyTorch e torchvision. Instale requirements.txt."
             ) from error
 
-        # localiza o código do UnovFD dentro do submódulo
+        # localiza o código do UnivFD dentro do submódulo
         source_dir = Path(UNIVFD_DIR).resolve()
         if not source_dir.is_dir():
             raise FileNotFoundError(f"Submódulo UnivFD não encontrado: {source_dir}")

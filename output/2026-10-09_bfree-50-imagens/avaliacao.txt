@@ -1,0 +1,44 @@
+Limiar: 0.5 (score >= 0.5 = IA)
+
+## 1. Formato original (50 imagens)
+
+| Grupo | Acertos | Score médio | Mín | Máx |
+|---|---|---|---|---|
+| Reais (LAION, JPEG) | 17/20 | 0.191 | 0.001 | 0.965 |
+| FLUX-schnell (Commercial, PNG) | 3/4 | 0.751 | 0.090 | 0.992 |
+| IdeogramV2 (Commercial, PNG) | 3/4 | 0.724 | 0.039 | 0.998 |
+| LCM_lora_sdxl (LatDiff, PNG) | 4/4 | 0.994 | 0.986 | 0.998 |
+| MidjourneyV6_1 (Commercial, PNG) | 4/4 | 0.886 | 0.737 | 0.957 |
+| DFGAN (GAN, PNG) | 5/5 | 0.974 | 0.946 | 0.997 |
+| GALIP (GAN, PNG) | 4/5 | 0.787 | 0.406 | 0.997 |
+| Firefly_Image3 (Commercial, JPEG) | 4/4 | 0.953 | 0.908 | 1.000 |
+
+Acurácia: 44/50 = 88% | AP: 0.957 | AUC: 0.935
+
+## 2. Tudo em JPEG (reais + IA convertidas para JPEG 95 + Firefly 3 nativo)
+
+| Grupo | Acertos | Score médio | Mín | Máx |
+|---|---|---|---|---|
+| Reais (LAION, JPEG) | 17/20 | 0.191 | 0.001 | 0.965 |
+| DFGAN (GAN) | 5/5 | 0.980 | 0.959 | 0.998 |
+| FLUX-schnell (Commercial) | 3/4 | 0.684 | 0.030 | 0.993 |
+| GALIP (GAN) | 5/5 | 0.817 | 0.560 | 0.997 |
+| IdeogramV2 (Commercial) | 3/4 | 0.740 | 0.030 | 0.999 |
+| LCM_lora_sdxl (LatDiff) | 4/4 | 0.995 | 0.989 | 0.999 |
+| MidjourneyV6_1 (Commercial) | 4/4 | 0.852 | 0.717 | 0.931 |
+| Firefly_Image3 (Commercial) | 4/4 | 0.953 | 0.908 | 1.000 |
+
+Acurácia: 45/50 = 90% | AP: 0.957 | AUC: 0.927
+
+## 3. Mesmas imagens de IA: PNG original x JPEG 95
+
+| Gerador | Acertos PNG | Acertos JPEG 95 | Score médio PNG | Score médio JPEG 95 |
+|---|---|---|---|---|
+| DFGAN | 5/5 | 5/5 | 0.974 | 0.980 |
+| FLUX-schnell | 3/4 | 3/4 | 0.751 | 0.684 |
+| GALIP | 4/5 | 5/5 | 0.787 | 0.817 |
+| IdeogramV2 | 3/4 | 3/4 | 0.724 | 0.740 |
+| LCM_lora_sdxl | 4/4 | 4/4 | 0.994 | 0.995 |
+| MidjourneyV6_1 | 4/4 | 4/4 | 0.886 | 0.852 |
+
+Tempo por imagem (CPU): média 10.9s, mín 7.5s, máx 19.4s, total 13.7 min

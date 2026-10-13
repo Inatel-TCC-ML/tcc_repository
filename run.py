@@ -17,6 +17,7 @@ from src.detection import (
     CNNDetectionDetector,
     NPRDetector,
     SPAIDetector,
+    BFreeDetector
 )
 
 SUPPORTED_EXTENSIONS = {".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff", ".webp"}
@@ -46,6 +47,7 @@ def main() -> None:
         UnivFDDetector(), 
         CNNDetectionDetector(),
         NPRDetector(),
+        BFreeDetector(),
         SPAIDetector(),
     ]
 
