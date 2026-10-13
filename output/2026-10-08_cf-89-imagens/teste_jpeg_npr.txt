@@ -1,8 +1,0 @@
-Teste de viés de formato no NPR (limiar 0,5)
-Saída de scripts/teste_jpeg_npr.py, rodado em 08/10/2026.
-As mesmas 40 imagens de IA, originais em PNG e convertidas para JPEG com Pillow.
-
-Reais (JPEG original)        48/49  |  real 48/49
-IA em PNG (original)         32/40  |  FLUX-schnell 9/10  IdeogramV2 10/10  LCM_lora_sdxl 4/10  MidjourneyV6_1 9/10
-IA convertida p/ JPEG q95    17/40  |  FLUX-schnell 0/10  IdeogramV2 7/10  LCM_lora_sdxl 4/10  MidjourneyV6_1 6/10
-IA convertida p/ JPEG q75    7/40   |  FLUX-schnell 0/10  IdeogramV2 4/10  LCM_lora_sdxl 1/10  MidjourneyV6_1 2/10
