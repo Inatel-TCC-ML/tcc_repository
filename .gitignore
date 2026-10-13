@@ -3,6 +3,7 @@ weights/*.pth
 weights/*.pt
 weights/*.ckpt
 datasets/
+dataset-separado/
 output/
 *.mp4
 *.avi
