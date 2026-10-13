@@ -12,7 +12,13 @@ from src.aggregation import (
 )
 
 from src.config import INPUT_IMAGE_DIR
-from src.detection import UnivFDDetector, CNNDetectionDetector, NPRDetector, BFreeDetector
+from src.detection import (
+    UnivFDDetector,
+    CNNDetectionDetector,
+    NPRDetector,
+    SPAIDetector,
+    BFreeDetector
+)
 
 SUPPORTED_EXTENSIONS = {".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff", ".webp"}
 
@@ -42,6 +48,7 @@ def main() -> None:
         CNNDetectionDetector(),
         NPRDetector(),
         BFreeDetector(),
+        SPAIDetector(),
     ]
 
     print("\n" * 50)

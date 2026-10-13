@@ -10,3 +10,6 @@
 [submodule "external/B-Free"]
 	path = external/B-Free
 	url = https://github.com/grip-unina/B-Free.git
+[submodule "external/SPAI"]
+	path = external/SPAI
+	url = https://github.com/mever-team/spai.git

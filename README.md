@@ -78,6 +78,15 @@ tcc_repository/
 ├── weights/                           # pesos baixados pelo make weights (gitignored)
 │   ├── blur_jpg_prob0.5.pth
 │   └── BFREE_dino2reg4/
+├── external/
+│   ├── CNNDetection/                  # submodule (Wang et al., CVPR 2020)
+│   ├── UniversalFakeDetect/           # submodule (Ojha et al.)
+│   ├── NPR-DeepfakeDetection/         # submodule (NPR)
+│   └── SPAI/                          # submodule (Karageorgiou et al., CVPR 2025)
+│
+├── weights/                           # pesos dos modelos baixados (gitignored)
+│   ├── blur_jpg_prob0.5.pth           # CNNDetection
+│   └── spai.pth                       # SPAI
 │
 ├── src/
 │   ├── config.py                      # caminhos centralizados do projeto
@@ -118,6 +127,8 @@ Código de terceiros incluído via **git submodule**. Mantém separação clara 
 ### `weights/`
 
 Pesos pré-treinados dos modelos de detecção. Não versionado no Git (arquivos grandes); o `make weights` baixa tudo (veja [Pesos dos modelos](#pesos-dos-modelos)).
+
+Para habilitar o SPAI, baixe o checkpoint oficial [neste link do Google Drive](https://drive.google.com/file/d/1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI/view?usp=sharing) e salve-o como `weights/spai.pth`. As dependências do código oficial estão declaradas em `requirements.txt`; `make setup` inicializa também o submódulo `external/SPAI`.
 
 ### `src/config.py`
 
