@@ -25,3 +25,10 @@ NPRDEEPFAKE_DIR = os.path.normpath(NPRDEEPFAKE_DIR)
 
 NPRDEEPFAKE_WEIGHTS_PATH = os.path.join(NPRDEEPFAKE_DIR, "NPR.pth")
 NPRDEEPFAKE_WEIGHTS_PATH = os.path.normpath(NPRDEEPFAKE_WEIGHTS_PATH)
+
+# ---------- SPAI ---------- #
+SPAI_DIR = os.path.join(ROOT_DIR, "..", "external", "SPAI")
+SPAI_DIR = os.path.normpath(SPAI_DIR)
+
+SPAI_WEIGHTS_PATH = os.path.join(ROOT_DIR, "..", "weights", "spai.pth")
+SPAI_WEIGHTS_PATH = os.path.normpath(SPAI_WEIGHTS_PATH)

@@ -7,3 +7,6 @@
 [submodule "external/NPR-DeepfakeDetection"]
 	path = external/NPR-DeepfakeDetection
 	url = https://github.com/chuangchuangtan/NPR-DeepfakeDetection.git
+[submodule "external/SPAI"]
+	path = external/SPAI
+	url = https://github.com/mever-team/spai.git

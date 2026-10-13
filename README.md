@@ -13,10 +13,14 @@ Vídeo → Extração de Keyframes → Detecção (1..N modelos) → Agregação
 ```
 tcc_repository/
 ├── external/
-│   └── CNNDetection/                  # submodule (código de terceiros - Wang et al., CVPR 2020)
+│   ├── CNNDetection/                  # submodule (Wang et al., CVPR 2020)
+│   ├── UniversalFakeDetect/           # submodule (Ojha et al.)
+│   ├── NPR-DeepfakeDetection/         # submodule (NPR)
+│   └── SPAI/                          # submodule (Karageorgiou et al., CVPR 2025)
 │
 ├── weights/                           # pesos dos modelos baixados (gitignored)
-│   └── cnndetection_blur_jpg.pth
+│   ├── blur_jpg_prob0.5.pth           # CNNDetection
+│   └── spai.pth                       # SPAI
 │
 ├── src/
 │   ├── config.py                      # caminhos centralizados do projeto
@@ -56,6 +60,8 @@ Código de terceiros incluído via **git submodule**. Mantém separação clara 
 
 Pesos pré-treinados dos modelos de detecção. Não versionado no Git (arquivos grandes); cada membro do grupo baixa manualmente seguindo instruções do `setup.sh`/README.
 
+Para habilitar o SPAI, baixe o checkpoint oficial [neste link do Google Drive](https://drive.google.com/file/d/1vvXmZqs6TVJdj8iF1oJ4L_fcgdQrp_YI/view?usp=sharing) e salve-o como `weights/spai.pth`. As dependências do código oficial estão declaradas em `requirements.txt`; `make setup` inicializa também o submódulo `external/SPAI`.
+
 ### `src/config.py`
 
 Único lugar do projeto com caminhos absolutos, calculados a partir da raiz do repositório (via `os.path.dirname(os.path.abspath(__file__))`). Evita caminhos hardcoded específicos de cada máquina/usuário.
@@ -64,7 +70,7 @@ Pesos pré-treinados dos modelos de detecção. Não versionado no Git (arquivos
 
 Modelos de detecção de imagens/vídeos gerados por IA — o coração do ensemble. Todo modelo novo implementa a interface `Detector` (`base.py`), com um método `predict(image_path) -> float` retornando o score de probabilidade.
 
-**Atual:** CNNDetection (Wang et al., CVPR 2020), ResNet50 treinado em imagens geradas por GAN. Escolhido propositalmente por suas limitações documentadas de generalização contra modelos de difusão — serve de baseline para o eixo de generalização da pesquisa.
+**Atual:** UnivFD, CNNDetection, NPR e SPAI. O SPAI usa aprendizado espectral para distinguir imagens geradas por IA e foi publicado na CVPR 2025.
 
 ### `src/aggregation/`
 
