@@ -96,7 +96,11 @@ tcc_repository/
 │       └── score_aggregators.py       # média, mediana, percentil e máximo
 │
 ├── datasets/                          # imagens de entrada (gitignored)
-│   └── input/
+│   ├── input/
+│   └── experimento/                   # imagens baixadas pelo experimento oficial
+│
+├── experimento/                       # desenho e scripts do experimento oficial
+├── output/                            # registro de cada experimento já rodado
 │
 ├── Makefile                           # comandos de configuração e execução
 ├── requirements.txt
@@ -150,6 +154,14 @@ Além dos scores de cada modelo, o `results.csv` traz média, mediana, percentis
 ### `datasets/`
 
 Imagens de entrada (reais e geradas por IA), organizadas por gerador de origem — importante para rastrear qual amostra veio de qual modelo generativo no teste de generalização.
+
+### `experimento/`
+
+Experimento oficial do artigo: amostra fixa de 2.400 imagens (24 geradores, 50 reais e 50 de IA em cada), scripts para baixar as imagens, rodar os detectores e gerar as tabelas. Tudo explicado em [experimento/README.md](experimento/README.md).
+
+### `output/`
+
+Um registro por experimento já rodado (`AAAA-MM-DD_<nome>/`, com README, resultados e scripts), listados em [output/README.md](output/README.md).
 
 ## Por que essa estrutura escala bem
 

@@ -12,6 +12,7 @@ datasets/
 *.mkv
 *.csv
 !output/**/*.csv
+!experimento/amostra.csv
 
 # ===== Python =====
 __pycache__/
