@@ -8,6 +8,8 @@ from typing import Sequence
 
 import numpy as np
 
+from sklearn.metrics import roc_auc_score
+
 
 class ScoreAggregator(ABC):
     """Converte uma sequência de scores em um único score final."""
@@ -24,7 +26,7 @@ class ScoreAggregator(ABC):
     @staticmethod
     def _validate(scores: Sequence[float]) -> None:
         if not scores:
-            raise ValueError("É necessário ao menos um score de keyframe.")
+            raise ValueError("É necessário ao menos um score.")
 
 
 class MeanScoreAggregator(ScoreAggregator):
@@ -45,6 +47,16 @@ class MaxScoreAggregator(ScoreAggregator):
     def aggregate(self, scores: Sequence[float]) -> float:
         self._validate(scores)
         return max(scores)
+
+
+class MinScoreAggregator(ScoreAggregator):
+    @property
+    def name(self) -> str:
+        return "mínimo"
+
+    def aggregate(self, scores: Sequence[float]) -> float:
+        self._validate(scores)
+        return min(scores)
 
 
 class MedianScoreAggregator(ScoreAggregator):
@@ -70,3 +82,48 @@ class PercentileScoreAggregator(ScoreAggregator):
     def aggregate(self, scores: Sequence[float]) -> float:
         self._validate(scores)
         return float(np.percentile(scores, self.percentile))
+
+
+class MajorityVotingAggregator(ScoreAggregator):
+    def __init__(self, threshold: float) -> None:
+            if not 0 <= threshold <= 100:
+                raise ValueError("O limiar deve estar entre 0 e 1.")
+            self.threshold = threshold
+
+    @property
+    def name(self) -> str:
+        return f"votação majoritária"
+
+    def aggregate(self, scores: Sequence[float]) -> float:
+        scores = np.asarray(scores, dtype=float)
+        votes = scores > self.threshold
+        return votes.mean(axis=-1)
+
+
+class AUCEvaluator:
+    """Calcula a AUC-ROC a partir dos rótulos reais e dos scores previstos."""
+
+    @property
+    def name(self) -> str:
+        return "AUC-ROC"
+
+    def evaluate(
+        self,
+        y_true: str,
+        y_scores: Sequence[float],
+    ) -> float:
+
+        if y_true == "Fake":
+            y_true = np.full(len(y_scores), 1)
+        else: 
+            y_true = np.full(len(y_scores), 0)
+
+        if len(y_true) != len(y_scores):
+            raise ValueError(
+                "Os rótulos reais e os scores devem ter o mesmo tamanho."
+            )
+
+        if len(y_true) == 0:
+            raise ValueError("É necessário fornecer ao menos uma amostra.")
+
+        return float(roc_auc_score(y_true, y_scores))
