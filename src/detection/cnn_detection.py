@@ -24,7 +24,12 @@ class CNNDetectionDetector(Detector):
         device: Optional[str] = None,
         crop_size: Optional[int] = None,
     ) -> None:
-        self.weights_path = Path(weights_path or WEIGHTS_PATH).resolve()
+
+        # Define o caminho dos pesos
+        self.weights_path = Path(
+            weights_path or WEIGHTS_PATH
+        ).resolve()
+
         self.crop_size = crop_size
 
         if not self.weights_path.is_file():
@@ -32,6 +37,7 @@ class CNNDetectionDetector(Detector):
                 f"Pesos do CNNDetection não encontrados: {self.weights_path}"
             )
 
+        # Carrega o modelo, os pesos e o pré-processamento da imagem
         self._torch, self._transform, self._model = self._load_model(device)
 
     @property
@@ -46,9 +52,12 @@ class CNNDetectionDetector(Detector):
 
         from PIL import Image
 
+        # Garante que a imagem esteja em RGB
         with Image.open(image_file) as image:
             tensor = self._transform(image.convert("RGB")).unsqueeze(0)
 
+        # Diminuindo o uso da memória, desativando o cálculo de gradientes
+        # sigmoid().item() converte a saída em um valor entre 0 e 1
         with self._torch.no_grad():
             probability = self._model(tensor.to(self.device)).sigmoid().item()
         return float(probability)
@@ -63,11 +72,11 @@ class CNNDetectionDetector(Detector):
                 "Instale as dependências do requirements.txt."
             ) from error
 
+        # localiza o código do CNNDetection dentro do submódulo
         source_dir = Path(CNNDETECTION_DIR).resolve()
+
         if not source_dir.is_dir():
-            raise FileNotFoundError(
-                f"Submódulo CNNDetection não encontrado: {source_dir}"
-            )
+            raise FileNotFoundError(f"Submódulo CNNDetection não encontrado: {source_dir}")
         if str(source_dir) not in sys.path:
             sys.path.insert(0, str(source_dir))
 

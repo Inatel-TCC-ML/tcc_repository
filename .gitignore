@@ -2,13 +2,16 @@
 weights/*.pth
 weights/*.pt
 weights/*.ckpt
+weights/*/
+weights/*.zip
+weights/*.tmp
 datasets/
-output/
 *.mp4
 *.avi
 *.mov
 *.mkv
-*.csv
+!output/**/*.csv
+!experimento/amostra.csv
 
 # ===== Python =====
 __pycache__/
@@ -88,3 +91,4 @@ htmlcov/
 checkpoints/
 runs/
 *.onnx
+temp/

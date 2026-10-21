@@ -1,5 +1,15 @@
 from .base import Detector
-from .cnndetection import CNNDetectionDetector
-from .univfd import UnivFDDetector
+from .b_free import BFreeDetector
+from .cnn_detection import CNNDetectionDetector
+from .npr_deepfake_detect import NPRDetector
+from .spai_detector import SPAIDetector
+from .universal_fake_detect import UnivFDDetector
 
-__all__ = ["CNNDetectionDetector", "Detector", "UnivFDDetector"]
+__all__ = [
+    "Detector",
+    "CNNDetectionDetector",
+    "UnivFDDetector",
+    "NPRDetector",
+    "SPAIDetector",
+    "BFreeDetector"
+]
