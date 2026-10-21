@@ -10,7 +10,6 @@ datasets/
 *.avi
 *.mov
 *.mkv
-*.csv
 !output/**/*.csv
 !experimento/amostra.csv
 
@@ -92,3 +91,4 @@ htmlcov/
 checkpoints/
 runs/
 *.onnx
+temp/

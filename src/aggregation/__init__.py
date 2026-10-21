@@ -1,4 +1,3 @@
-from .base import Aggregator
 from .score_aggregators import (
     ScoreAggregator,
     MaxScoreAggregator,
@@ -7,11 +6,9 @@ from .score_aggregators import (
     MedianScoreAggregator,
     PercentileScoreAggregator,
     MajorityVotingAggregator,
-    AUCEvaluator
 )
 
 __all__ = [
-    "Aggregator",
     "ScoreAggregator",
     "MaxScoreAggregator",
     "MinScoreAggregator",
@@ -19,5 +16,4 @@ __all__ = [
     "MedianScoreAggregator",
     "PercentileScoreAggregator",
     "MajorityVotingAggregator",
-    "AUCEvaluator"
 ]

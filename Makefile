@@ -21,6 +21,7 @@ help:
 	@echo "  make submodules  Inicializa/atualiza os submodules"
 	@echo "  make update      Atualiza os submodules"
 	@echo "  make run         Executa a aplicacao"
+	@echo "  make metrics     Calcula as metricas do experimento"
 	@echo "  make test        Executa os testes"
 	@echo "  make clean       Remove caches do Python"
 	@echo "  make check       Verifica o ambiente"
@@ -84,6 +85,14 @@ weights:
 .PHONY: run
 run:
 	$(PYTHON) run.py
+
+.PHONY: metrics
+metrics:
+	$(PYTHON) analyze_results.py
+
+.PHONY: test
+test:
+	$(PYTHON) -m pytest -q
 
 .PHONY: check
 check:

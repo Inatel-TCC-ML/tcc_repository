@@ -1,23 +1,22 @@
-"""Analisa imagens do CommunityForensics-Eval com vários modelos."""
+"""Executa o experimento de detecção no CommunityForensics-Eval."""
 
 import csv
 import gc
-import os
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
 import torch
 from datasets import load_dataset
 from PIL import Image
 
 from src.aggregation import (
+    MajorityVotingAggregator,
     MaxScoreAggregator,
-    MinScoreAggregator,
     MeanScoreAggregator,
     MedianScoreAggregator,
+    MinScoreAggregator,
     PercentileScoreAggregator,
-    MajorityVotingAggregator,
-    AUCEvaluator
 )
 from src.detection import (
     BFreeDetector,
@@ -28,19 +27,45 @@ from src.detection import (
 )
 
 
-# ---------- Configurações ---------- #
-
+# Configuração do experimento.
 DATASET_NAME = "OwensLab/CommunityForensics-Eval"
 DATASET_SPLIT = "CompEval"
-CSV_FILENAME = "results.csv"
+RESULTS_DIR = Path("results")
+CSV_PATH = RESULTS_DIR / "experiment_resolution.csv"
+TEMP_DIR = RESULTS_DIR / "temp"
 
-LIMIT_PER_ORIGIN = 100
-MAX_IMAGE_PIXELS = 1_000_000
+# Os nomes precisam coincidir com a coluna ``model_name`` do dataset.
+FAKE_MODELS = (
+    "DFGAN",
+    "GALIP",
+    "Dalle2",
+    "Dalle3",
+    "FLUX-dev",
+    "Imagen3",
+    "kandinsky_2_2",
+    "MidjourneyV6_1",
+    "stable_cascade",
+)
+FAKE_IMAGES_PER_MODEL = 100
+
+REAL_SOURCES = ("coco", "ffhq", "laion")
+REAL_IMAGES_PER_SOURCE = 250
+
+RESOLUTIONS: dict[str, tuple[int, int] | None] = {
+    "original": None,
+    "256x256": (256, 256),
+    "512x512": (512, 512),
+    "1024x1024": (1024, 1024),
+}
+PRIMARY_RESOLUTION = next(iter(RESOLUTIONS))
+
+# Limite para evitar carregar imagens grandes demais na memória.
+MAX_IMAGE_PIXELS = 20_000_000
 VOTING_THRESHOLD = 0.5
+RANDOM_SEED = 42
 
 
 def create_detectors():
-    """Inicializa os modelos utilizados na análise."""
     return [
         UnivFDDetector(),
         CNNDetectionDetector(),
@@ -50,69 +75,46 @@ def create_detectors():
     ]
 
 
-def get_image_metadata(example):
-    """Extrai o nome, o rótulo e a origem da imagem."""
-    image_name = example.get("image_name", "imagem_desconhecida")
-    is_fake = str(example["label"]) == "1"
+def get_image_metadata(example: dict[str, Any]) -> dict[str, str]:
+    """Extrai metadados que serão gravados junto aos scores."""
+    is_fake = int(example["label"]) == 1
+    real_source = str(example.get("real_source") or "desconhecida")
+    model_name = str(example.get("model_name") or "desconhecido")
 
-    label_type = "Fake" if is_fake else "Real"
-    origin = (
-        example["model_name"]
-        if is_fake
-        else f"Real_{example['real_source']}"
-    )
-
-    clean_origin = "".join(
-        char for char in origin
-        if char.isalnum() or char in ("-", "_")
-    ).strip()
-
-    return image_name, label_type, origin, clean_origin
+    return {
+        "image_name": str(example.get("image_name") or "imagem_desconhecida"),
+        "label": "Fake" if is_fake else "Real",
+        "origin": model_name if is_fake else f"Real_{real_source}",
+        "model_name": model_name,
+        "real_source": real_source,
+        "architecture": str(example.get("architecture") or "desconhecida"),
+    }
 
 
-def load_image(image_data):
-    """Decodifica os bytes e retorna a imagem em RGB."""
+def load_image(image_data: bytes) -> Image.Image | None:
     with Image.open(BytesIO(image_data)) as source:
         source.load()
-
         if source.width * source.height > MAX_IMAGE_PIXELS:
             return None
-
-        return source.convert("RGB")
-
-def load_image_with_size(image_data, size):
-    """Aceita apenas imagens com a resolução definida."""
-    with Image.open(BytesIO(image_data)) as source:
-        source.load()
-
-        if source.size != size:
-            return None
-
         return source.convert("RGB")
 
 
-def predict_image(image_path, detectors):
-    """Executa cada detector e retorna suas pontuações."""
+def prepare_image(image: Image.Image, size: tuple[int, int] | None) -> Image.Image:
+    if size is None:
+        return image.copy()
+    return image.resize(size, Image.Resampling.LANCZOS)
+
+
+def predict_image(image_path: Path, detectors) -> list[float]:
     scores = []
-
-    # A inferência não precisa calcular gradientes.
     with torch.no_grad():
         for detector in detectors:
-            print(f"Executando {detector.name}...", flush=True)
-
             score = detector.predict(str(image_path))
-            scores.append(score)
-
-            print(
-                f"{detector.name}: {score:.4f}",
-                flush=True,
-            )
-
+            scores.append(float(score))
     return scores
 
 
-def calculate_aggregates(scores, label_type):
-    """Calcula as métricas de agregação das pontuações."""
+def calculate_aggregates(scores: list[float]) -> list[float]:
     return [
         MeanScoreAggregator().aggregate(scores),
         MedianScoreAggregator().aggregate(scores),
@@ -121,148 +123,213 @@ def calculate_aggregates(scores, label_type):
         MaxScoreAggregator().aggregate(scores),
         MinScoreAggregator().aggregate(scores),
         MajorityVotingAggregator(VOTING_THRESHOLD).aggregate(scores),
-        # AUCEvaluator().evaluate(label_type, scores)
     ]
 
 
-def create_csv_writer(file, detectors):
-    """Cria o cabeçalho se o arquivo CSV estiver vazio."""
-    writer = csv.writer(file)
+def is_selected_example(metadata: dict[str, str], counts: dict[str, int]) -> str | None:
+    """Retorna a chave da cota da amostra, ou None se ela não será usada."""
+    if metadata["label"] == "Fake":
+        model = metadata["model_name"]
+        if model not in FAKE_MODELS or counts[model] >= FAKE_IMAGES_PER_MODEL:
+            return None
+        return model
 
-    if os.path.getsize(CSV_FILENAME) == 0:
-        writer.writerow([
-            "Imagem",
-            "Origem_Modelo",
-            "Tipo_Label",
-            *[detector.name for detector in detectors],
-            "Média",
-            "Mediana",
-            "Percentil 75",
-            "Percentil 90",
-            "Máximo",
-            "Mínimo",
-            "Votação da Maioria",
-            # "AUC-ROC"
-        ])
-        file.flush()
-
-    return writer
+    source = metadata["real_source"].lower()
+    key = f"real:{source}"
+    if source not in REAL_SOURCES or counts[key] >= REAL_IMAGES_PER_SOURCE:
+        return None
+    return key
 
 
-def process_example(index, example, detectors, writer, file):
-    """Processa uma amostra e registra seus resultados."""
-    image_name, label_type, origin, clean_origin = (
-        get_image_metadata(example)
-    )
-
-    print(f"\nAmostra {index}: {image_name}", flush=True)
-
-    image = None
-    temp_path = Path(f"temp_{clean_origin}_{index}.png")
+def process_example(
+    dataset_index: int,
+    example: dict[str, Any],
+    metadata: dict[str, str],
+    detectors,
+    writer: csv.writer,
+    file,
+) -> bool:
+    image = load_image(example["image_data"])
+    if image is None:
+        print(f"Imagem ignorada por tamanho: {metadata['image_name']}", flush=True)
+        return False
 
     try:
-        # image = load_image(example["image_data"])
-        image = load_image_with_size(example["image_data"], (1024, 1024))
+        for resolution_name, size in RESOLUTIONS.items():
+            version = prepare_image(image, size)
+            temp_path = TEMP_DIR / f"sample_{dataset_index}_{resolution_name}.png"
 
-        if image is None:
-            print(
-                f"Imagem ignorada por resolução: {image_name}",
-                flush=True,
-            )
-            return False
+            try:
+                # PNG evita introduzir compressão JPEG durante o redimensionamento.
+                version.save(temp_path, format="PNG")
+                scores = predict_image(temp_path, detectors)
+                aggregates = calculate_aggregates(scores)
 
-        image.save(temp_path, format="PNG")
+                writer.writerow([
+                    dataset_index,
+                    metadata["image_name"],
+                    metadata["origin"],
+                    metadata["label"],
+                    metadata["model_name"],
+                    metadata["real_source"],
+                    metadata["architecture"],
+                    resolution_name,
+                    *scores,
+                    *aggregates,
+                ])
+                file.flush()
+                print(
+                    f"  {resolution_name}: registrado ({metadata['image_name']})",
+                    flush=True,
+                )
+            finally:
+                version.close()
+                if temp_path.exists():
+                    temp_path.unlink()
 
-        scores = predict_image(temp_path, detectors)
-        aggregates = calculate_aggregates(scores, label_type)
-
-        writer.writerow([
-            image_name,
-            origin,
-            label_type,
-            *scores,
-            *aggregates,
-        ])
-        file.flush()
-
-        print(f"Imagem registrada: {image_name}", flush=True)
         return True
-
     except Exception as error:
         print(
-            f"Erro na imagem {image_name}: "
+            f"Erro na imagem {metadata['image_name']}: "
             f"{type(error).__name__}: {error}",
             flush=True,
         )
         return False
-
     finally:
-        if image is not None:
-            image.close()
-
-        if temp_path.exists():
-            temp_path.unlink()
-
+        image.close()
         gc.collect()
-
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
 
-def main():
-    """Coordena o processamento do dataset."""
+def create_csv_writer(file, detectors) -> csv.writer:
+    writer = csv.writer(file)
+    writer.writerow([
+        "Indice_Dataset",
+        "Imagem",
+        "Origem_Modelo",
+        "Tipo_Label",
+        "Modelo_Gerador",
+        "Fonte_Real",
+        "Arquitetura",
+        "Resolução",
+        *[detector.name for detector in detectors],
+        "Média",
+        "Mediana",
+        "Percentil 75",
+        "Percentil 90",
+        "Máximo",
+        "Mínimo",
+        "Votação da Maioria",
+    ])
+    file.flush()
+    return writer
+
+
+def quotas_complete(counts: dict[str, int]) -> bool:
+    return (
+        all(counts[model] >= FAKE_IMAGES_PER_MODEL for model in FAKE_MODELS)
+        and all(
+            counts[f"real:{source}"] >= REAL_IMAGES_PER_SOURCE
+            for source in REAL_SOURCES
+        )
+    )
+
+
+def read_completed_counts(counts: dict[str, int]) -> dict[str, int]:
+    """Recupera as cotas já concluídas ao reiniciar um experimento interrompido."""
+    if not CSV_PATH.is_file() or CSV_PATH.stat().st_size == 0:
+        return counts
+
+    with CSV_PATH.open(newline="", encoding="utf-8-sig") as file:
+        for row in csv.DictReader(file):
+            # Conta cada imagem uma vez, usando a primeira resolução configurada.
+            if row["Resolução"] != PRIMARY_RESOLUTION:
+                continue
+
+            if row["Tipo_Label"] == "Fake":
+                model = row["Modelo_Gerador"]
+                if model in counts:
+                    counts[model] += 1
+            else:
+                source = row["Fonte_Real"].lower()
+                key = f"real:{source}"
+                if key in counts:
+                    counts[key] += 1
+
+    return counts
+
+
+def main() -> None:
+    RESULTS_DIR.mkdir(exist_ok=True)
+    TEMP_DIR.mkdir(exist_ok=True)
+
+    counts = {
+        **{model: 0 for model in FAKE_MODELS},
+        **{f"real:{source}": 0 for source in REAL_SOURCES},
+    }
+    counts = read_completed_counts(counts)
+
+    if quotas_complete(counts):
+        print(f"O experimento já está completo: {CSV_PATH}")
+        return
+
     print("Inicializando detectores...", flush=True)
     detectors = create_detectors()
 
-    file_exists = (
-        os.path.exists(CSV_FILENAME)
-        and os.path.getsize(CSV_FILENAME) > 0
-    )
+    if CSV_PATH.is_file() and CSV_PATH.stat().st_size > 0:
+        open_mode = "a"
+        print("Continuando o CSV existente...", flush=True)
+    else:
+        open_mode = "w"
 
-    counts_by_origin = {}
+    # Streaming evita carregar o dataset inteiro na memória.
+    dataset = load_dataset(DATASET_NAME, split=DATASET_SPLIT, streaming=True)
+    dataset = dataset.shuffle(seed=RANDOM_SEED, buffer_size=100)
 
-    with open(CSV_FILENAME, "a", newline="", encoding="utf-8",) as file:
+    with CSV_PATH.open(open_mode, newline="", encoding="utf-8-sig") as file:
         writer = (
             csv.writer(file)
-            if file_exists
+            if open_mode == "a"
             else create_csv_writer(file, detectors)
         )
+        print("Processando a amostra balanceada...", flush=True)
 
-        dataset = load_dataset(
-            DATASET_NAME,
-            split=DATASET_SPLIT,
-            streaming=True,
-        )
-
-        print("Processando dataset...", flush=True)
-
-        for index, example in enumerate(dataset):
-            _, _, _, clean_origin = get_image_metadata(example)
-
-            count = counts_by_origin.get(clean_origin, 0)
-
-            if count >= LIMIT_PER_ORIGIN:
+        for dataset_index, example in enumerate(dataset):
+            metadata = get_image_metadata(example)
+            quota_key = is_selected_example(metadata, counts)
+            if quota_key is None:
                 continue
 
-            processed = process_example(
-                index,
-                example,
-                detectors,
-                writer,
-                file,
+            print(
+                f"\nAmostra {dataset_index}: {metadata['origin']} "
+                f"({metadata['label']})",
+                flush=True,
             )
-
-            if processed:
-                counts_by_origin[clean_origin] = count + 1
-
+            if process_example(
+                dataset_index, example, metadata, detectors, writer, file
+            ):
+                counts[quota_key] += 1
                 print(
-                    f"Progresso: {clean_origin} — "
-                    f"{counts_by_origin[clean_origin]}/"
-                    f"{LIMIT_PER_ORIGIN}",
+                    f"Progresso {quota_key}: {counts[quota_key]}/"
+                    f"{FAKE_IMAGES_PER_MODEL if metadata['label'] == 'Fake' else REAL_IMAGES_PER_SOURCE}",
                     flush=True,
                 )
 
-    print("\nAnálise concluída. Resultados salvos em results.csv!")
+            if quotas_complete(counts):
+                break
+
+    print("\nExperimento concluído.")
+    print(f"Resultados: {CSV_PATH}")
+    print("\nAmostras selecionadas:")
+    for key, count in counts.items():
+        print(f"  {key}: {count}")
+
+    if not quotas_complete(counts):
+        print(
+            "\nAviso: alguma cota não foi preenchida. Confira os nomes "
+            "em FAKE_MODELS e REAL_SOURCES.",
+        )
 
 
 if __name__ == "__main__":

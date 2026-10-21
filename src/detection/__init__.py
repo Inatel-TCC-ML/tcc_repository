@@ -1,9 +1,9 @@
 from .base import Detector
-from .cnndetection import CNNDetectionDetector
-from .universalFakeDetect import UnivFDDetector
-from .nprDeepfakeDetect import NPRDetector
-from .spaiDetector import SPAIDetector
-from .bFree import BFreeDetector
+from .b_free import BFreeDetector
+from .cnn_detection import CNNDetectionDetector
+from .npr_deepfake_detect import NPRDetector
+from .spai_detector import SPAIDetector
+from .universal_fake_detect import UnivFDDetector
 
 __all__ = [
     "Detector",
